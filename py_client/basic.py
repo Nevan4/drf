@@ -1,17 +1,13 @@
 import requests
 
-endpoint = "https://httpbin.org/anything"
+endpoint = "http://localhost:8000/api"
 
 get_response = requests.get(endpoint, json={"query": "Hi Kacper"})
+print(get_response.text)
+
+print(f"\n\n\n")
+
 print(get_response.json())
 
-get_response = requests.get(endpoint, data={"data": "Hi Agata"})
-print(get_response.json())
+print(get_response.json()["message"])
 
-
-
-
-# Notes #
-# HTTP Request -handles-> HTML
-# REST API HTTP Request -handles-> JSON
-# JSON (JavaScript Object Nototion) -similar-to-> Python Dict
