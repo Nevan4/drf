@@ -17,3 +17,5 @@ def api_home(request, *args, **kwargs):
     if model_data:
         data = model_to_dict(model_data, fields=['id', 'title', 'price'])
     return Response(data)
+
+# This should work only with py_client script, not on the actual Django RF Server
