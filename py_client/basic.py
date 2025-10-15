@@ -7,6 +7,6 @@ print(get_response.text)
 
 # print(f"\n\n\n")
 
-print(get_response.json())
+# print(get_response.json())
 
 
