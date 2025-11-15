@@ -15,4 +15,6 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
     def get_my_discount(self, obj):
-        return obj.get_discount()
+        # Product model doesn't define `get_discount()`; expose the computed
+        # sale price (property `sale_price`) instead.
+        return obj.sale_price
