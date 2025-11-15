@@ -116,12 +116,49 @@ Short notes:
 - Auth and Permissions run before view logic; Response handles status codes and content negotiation.
 
 
+### SerializerMethodField naming conventions
+
+When you use `SerializerMethodField` in a serializer, DRF automatically looks for a method to call. The **default convention** is `get_<field_name>`:
+
+```python
+# Example: field named 'my_discount' → DRF looks for method 'get_my_discount'
+my_discount = serializers.SerializerMethodField(read_only=True)
+
+def get_my_discount(self, obj):
+    return obj.sale_price
+```
+
+**Three approaches to name the method:**
+
+1. **Convention (default):** `get_<field_name>` — DRF auto-discovers it
+   ```python
+   discount = serializers.SerializerMethodField()  # auto-finds get_discount()
+   def get_discount(self, obj): ...
+   ```
+
+2. **Custom method name via `method_name` parameter:**
+   ```python
+   discount = serializers.SerializerMethodField(method_name='compute_discount')
+   def compute_discount(self, obj): ...
+   ```
+
+3. **Custom method name via `source` parameter:**
+   ```python
+   discount = serializers.SerializerMethodField(source='calculate_discount')
+   def calculate_discount(self, obj): ...
+   ```
+
+**Best practice:** Follow the `get_<field_name>` convention — it's predictable and requires no extra configuration.
+
+---
+
 ### Key takeaways
 
 - **Trailing slash:** Django endpoints conventionally end with `/`. With `APPEND_SLASH=True`, a request to `/api` returns `301` → `/api/`.
 - **Redirects & bodies:** 301/302 redirects typically drop the request body; query parameters are preserved. Avoid redirects when sending body data (use correct URL or POST).
 - **Properties:** `model_to_dict` doesn't include `@property` fields (e.g., `sale_price`) — add them manually or use a Serializer.
 - **Serializer advantages:** DRF serializers provide validation, type conversion, nested relationships, and can include computed fields (`SerializerMethodField`).
+- **@property vs method:** Use `@property` for simple read-only computed values (accessed as `obj.value`); use methods for reusable logic with parameters.
 
 ---
 
