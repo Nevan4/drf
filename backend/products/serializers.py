@@ -15,6 +15,10 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
     def get_my_discount(self, obj):
-        # Product model doesn't define `get_discount()`; expose the computed
-        # sale price (property `sale_price`) instead.
+        # SerializerMethodField exposes model attributes/methods in the API.
+        # Two approaches:
+        # 1. @property (e.g., obj.sale_price) — accessed as attribute, read-only
+        # 2. method (e.g., obj.get_discount()) — explicit function call
+        # Both work here; currently using sale_price @property.
+        # return obj.get_discount()  # alternative: call the method instead
         return obj.sale_price
