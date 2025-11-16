@@ -21,4 +21,9 @@ class ProductSerializer(serializers.ModelSerializer):
         # 2. method (e.g., obj.get_discount()) — explicit function call
         # Both work here; currently using sale_price @property.
         # return obj.get_discount()  # alternative: call the method instead
-        return obj.sale_price
+        if not hasattr(obj, 'id'):
+            return None
+        if not isinstance(obj, Product):
+            return None
+        return obj.get_discount()
+    

@@ -191,6 +191,28 @@ python py_client/basic.py
 
 ---
 
+## Entry — 2025-11-17
+
+- **Date:** 2025-11-17
+- **Topics:** Serializer runtime behavior, validation, instance vs data, save()
+- **Summary:** Notes about how DRF serializers behave at runtime: passing `data=` does not create an instance, `is_valid()` and `validated_data` are used for input validation, and `save()` persists to the database and returns an instance which SerializerMethodField methods can work with.
+- **Key details:**
+   - No DB side-effect without `save()`: using `ProductSerializer(data=request.data)` prepares the serializer for validation only — nothing is written until `serializer.save()` is called.
+   - Instance-dependent fields: `SerializerMethodField` is called with an object instance when serializing model instances. When using the serializer for input (`data=`) there is no `obj`; guard with `hasattr(obj, 'id')` or `isinstance(obj, Product)` in `get_<field>` methods.
+   - Validation diagnostics: use `serializer.is_valid(raise_exception=True)` to get informative errors (wrong type, missing required fields) that explain why save/serialization cannot proceed.
+   - Where to compute values: compute derived values from `serializer.validated_data` before calling `save()`, or call `serializer.save()` then serialize the returned instance for response values that depend on model methods/properties.
+   - `validated_data` vs `data`: after `is_valid()`, use `serializer.validated_data` for cleaned input; `serializer.data` is the serialized representation (output) and requires either validated input or an instance.
+- **Commands:**
+   - Use `is_valid(raise_exception=True)` in views to get immediate feedback.
+
+- **Files:**
+   - `backend/api/views.py` — example view using `ProductSerializer(data=request.data)`
+   - `backend/products/serializers.py` — SerializerMethodField examples and guards
+
+- **Next steps / TODO:**
+   - Add a short example view flow in the notes: `is_valid() -> save() -> ProductSerializer(instance).data`
+
+
 ## Template for future entries
 
 - **Date:**
@@ -200,3 +222,4 @@ python py_client/basic.py
 - **Commands:**
 - **Files:**
 - **Next steps / TODO:**
+---
