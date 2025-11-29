@@ -19,7 +19,7 @@ class ProductSerializer(serializers.ModelSerializer):
         # Two approaches:
         # 1. @property (e.g., obj.sale_price) — accessed as attribute, read-only
         # 2. method (e.g., obj.get_discount()) — explicit function call
-        # Both work here; currently using sale_price @property.
+        # Both work here;
         # return obj.get_discount()  # alternative: call the method instead
         if not hasattr(obj, 'id'):
             return None
