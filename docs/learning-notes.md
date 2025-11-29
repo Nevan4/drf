@@ -212,6 +212,37 @@ python py_client/basic.py
 - **Next steps / TODO:**
    - Add a short example view flow in the notes: `is_valid() -> save() -> ProductSerializer(instance).data`
 
+---
+
+## Entry — 2025-11-29
+
+- **Date:** 2025-11-29
+- **Topics:** DRF generics (RetrieveAPIView), app-level URL layout, wiring class-based views, minimal view config
+- **Summary:** Added a Product detail view using DRF's RetrieveAPIView and noted how to expose it via an app-level urls.py and wire it into the project URLconf.
+
+- **Key details:**
+  - RetrieveAPIView is the simplest generic view for single-object GETs: it implements get_object() and standard response behavior so you don't have to write boilerplate.
+  - Keep URL patterns next to the app: add `products/urls.py` inside the products app and put product endpoints there to keep routing organized by feature.
+  - In the project URLconf include the app urls and map class-based views with `.as_view()`. Example patterns:
+    - By pk: `path('products/<int:pk>/', ProductDetailAPIView.as_view(), name='product-detail')`
+    - By slug: `path('products/<slug:slug>/', ProductDetailAPIView.as_view(), name='product-detail')` plus `lookup_field = 'slug'` on the view.
+  - ProductDetailAPIView minimal setup: set `queryset = Product.objects.all()` and `serializer_class = ProductSerializer`. These provide the object lookup and the serialization logic; add `lookup_field` or permission classes as needed.
+
+- **Commands:**
+  - run server: `python manage.py runserver`
+  - quick client check: `python py_client/detail.py` (expects `http://localhost:8000/api/products/1/`)
+
+- **Files of interest:**
+  - `backend/products/views.py` — ProductDetailAPIView (queryset, serializer_class, optional lookup_field)
+  - `backend/products/urls.py` — app-level routes for products (create if missing)
+  - `backend/urls.py` (project URLconf) — include app URLs with `include('products.urls')`
+  - `py_client/detail.py` — simple requests-based test client
+
+- **Next steps / TODO:**
+  - Add `products/urls.py` if not present and register it in the project URLconf.
+  - Consider adding tests that exercise both pk and slug lookups if slug support is added.
+
+---
 
 ## Template for future entries
 
@@ -222,4 +253,3 @@ python py_client/basic.py
 - **Commands:**
 - **Files:**
 - **Next steps / TODO:**
----
