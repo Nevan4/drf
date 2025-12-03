@@ -244,6 +244,37 @@ python py_client/basic.py
 
 ---
 
+## Entry — 2025-12-02
+
+- **Date:** 2025-12-02
+- **Topics:** DRF generics (CreateAPIView), app-level URL routing, perform_create override, POST request handling
+- **Summary:** Added ProductCreateAPIView using DRF's CreateAPIView to handle POST requests and persist new products to the database. Wired create and detail endpoints in app-level urls.py and demonstrated client-side POST with create.py script.
+
+- **Key details:**
+  - CreateAPIView is the simplest generic view for single-object POSTs: it implements post() dispatch, serializer validation, and save() logic so you don't have to write boilerplate.
+  - Override perform_create() to customize save behavior: this hook receives the validated serializer and allows you to set additional fields (e.g., `serializer.save(content=content)`) before persisting to the database.
+  - App-level URL routing: define create and detail routes in `products/urls.py` using `.as_view()`. Typical patterns:
+    - Create (POST/GET form): `path('', ProductCreateAPIView.as_view(), name='product-create')`
+    - Detail (GET by pk): `path('<int:pk>/', ProductDetailAPIView.as_view(), name='product-detail')`
+  - ProductCreateAPIView minimal setup: set `queryset = Product.objects.all()` and `serializer_class = ProductSerializer`. Override `perform_create()` if you need to compute or inject fields (e.g., default content from title, set user, etc.).
+  - Client-side POST: use requests library with `json=` parameter to send JSON body; the server parses and validates with the serializer.
+
+- **Commands:**
+  - run server: `python manage.py runserver`
+  - test create endpoint: `python py_client/create.py` (sends POST to `http://localhost:8000/api/products/`)
+  - test detail endpoint: `python py_client/detail.py` (sends GET to `http://localhost:8000/api/products/1/`)
+
+- **Files of interest:**
+  - `backend/products/views.py` — ProductCreateAPIView (perform_create override example), ProductDetailAPIView
+  - `backend/products/urls.py` — app-level routes (create '', detail '<int:pk>/')
+  - `backend/urls.py` (project URLconf) — include app URLs with `include('products.urls')`
+  - `py_client/create.py` — POST request to create new product
+  - `py_client/detail.py` — GET request to retrieve product by id
+
+- **Next steps / TODO:**
+
+---
+
 ## Template for future entries
 
 - **Date:**
