@@ -4,7 +4,7 @@ from rest_framework import generics
 from .models import Product
 from .serializers import ProductSerializer
 
-class ProductCreateAPIView(generics.CreateAPIView):
+class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -28,4 +28,11 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
     #   set `lookup_field = 'slug'` in the view and use a URL pattern like
     #   `path('products/<slug:slug>/', ProductDetailAPIView.as_view())`
     #   so the view resolves objects by their `slug` field instead of `pk`.
+
+
+# # Example of a List Api View. Knowing this we can use also ListCreate API View, which is done above.
+# # Remember to add proper routing, example: path('list/', views.ProductListAPIView.as_view())
+# class ProductListAPIView(generics.ListAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
 
