@@ -284,3 +284,75 @@ python py_client/basic.py
 - **Commands:**
 - **Files:**
 - **Next steps / TODO:**
+
+## Entry — 2025-01-13 (Branch 1-11)
+
+- **Date:** 2025-01-13
+- **Topics:** DRF generics (ListAPIView, ListCreateAPIView), app-level URL consolidation, unified routing
+- **Summary:** Replaced individual ProductDetailAPIView and ProductCreateAPIView with a unified ProductListCreateAPIView to handle both GET (list) and POST (create) on a single endpoint. Updated URL routing to consolidate create and list operations.
+
+- **Key details:**
+  - ListCreateAPIView combines list (GET /) and create (POST /) into a single view class: implements both `list()` and `create()` actions with minimal configuration.
+  - Single endpoint pattern: instead of separate views, one `ProductListCreateAPIView` handles both operations on `path('', ...)`, reducing boilerplate and improving cohesion.
+  - App-level URLs now simpler: `path('', ProductListCreateAPIView.as_view())` for list/create, `path('<int:pk>/', ProductDetailAPIView.as_view())` for detail.
+  - Override `perform_create()` as before to customize create behavior (e.g., set default content from title).
+  - Client scripts updated: `list.py` for GET (retrieve all products), `create.py` for POST (add new product), `detail.py` for GET by pk.
+
+- **Commands:**
+  - run server: `python manage.py runserver`
+  - test list endpoint: `python py_client/list.py` (sends GET to `http://localhost:8000/api/products/`)
+  - test create endpoint: `python py_client/create.py` (sends POST to `http://localhost:8000/api/products/`)
+  - test detail endpoint: `python py_client/detail.py` (sends GET to `http://localhost:8000/api/products/1/`)
+
+- **Files of interest:**
+  - `backend/products/views.py` — ProductListCreateAPIView (combined list/create)
+  - `backend/products/urls.py` — consolidated routing
+  - `py_client/list.py`, `py_client/create.py`, `py_client/detail.py` — client test scripts
+
+- **Next steps / TODO:**
+  - Consider using UpdateAPIView and DestroyAPIView for full CRUD (PATCH, DELETE).
+  - Explore filtering, searching, and pagination for the list endpoint.
+
+---
+
+## Entry — 2025-01-13 (Branch 1-12)
+
+- **Date:** 2025-01-13
+- **Topics:** Function-based views with @api_view decorator, unified GET/POST handling, type checking with cast()
+- **Summary:** Replaced DRF generic class-based views (ListCreateAPIView, RetrieveAPIView) with a single function-based view (`product_alt_view`) using the `@api_view` decorator. Demonstrated how to handle both GET (list/detail) and POST (create) in one function based on request method and URL parameters, while managing type-checker issues with explicit `cast()`.
+
+- **Key details:**
+  - `@api_view(['GET', 'POST'])` decorator turns a function into a DRF view that accepts specified HTTP methods.
+  - Single function, unified logic: check `request.method` and `pk` parameter to route list (GET /), detail (GET /<pk>/), and create (POST /) operations.
+  - GET detail: `if pk is not None:` fetch object with `get_object_or_404(Product, pk=pk)`, serialize and return.
+  - GET list: `if pk is None:` fetch all products with `Product.objects.all()`, serialize with `many=True` and return.
+  - POST create: validate with `serializer.is_valid(raise_exception=True)`, extract validated data with `cast(dict, serializer.validated_data)` to satisfy type checker, compute fields (e.g., default content from title), save and return with status 201.
+  - Type checker workaround: use `cast(dict, serializer.validated_data)` to explicitly tell the type checker that validated_data is a dict; prevents spurious "empty" attribute errors when using `.get()`.
+  - URL routing: `path('')` for list/create, `path('<int:pk>/')` for detail — Django's URLconf passes `pk` to the view function.
+
+- **Commands:**
+  - run server: `python manage.py runserver`
+  - test list/create: `python py_client/list.py` (GET), `python py_client/create.py` (POST)
+  - test detail: `python py_client/detail.py` (GET by pk)
+
+- **Files of interest:**
+  - `backend/products/views.py` — `product_alt_view` function-based view with `@api_view` decorator
+  - `backend/products/urls.py` — routes mapped to `product_alt_view`
+  - `py_client/` — client test scripts (list, create, detail)
+
+- **Pros of function-based views:**
+  - More explicit control flow (easier to read for simple cases).
+  - Direct access to request.method and URL parameters.
+
+- **Cons:**
+  - Less DRY: logic branches per HTTP method; harder to extend with permissions/throttling.
+  - More manual error handling.
+  - Less opinionated about REST patterns.
+
+- **Comparison:** Generic class-based views (like ListCreateAPIView) provide structure and reusability; function-based views offer simplicity for one-off endpoints or non-standard patterns.
+
+- **Next steps / TODO:**
+  - Compare performance and maintainability of function-based vs class-based views as project grows.
+  - Consider adding permissions and throttling to `product_alt_view` if needed.
+  - Explore decorators like `@permission_classes` for custom auth on function-based views.
+
