@@ -350,8 +350,29 @@ python py_client/basic.py
 
 - **Comparison:** Generic class-based views (like ListCreateAPIView) provide structure and reusability; function-based views offer simplicity for one-off endpoints or non-standard patterns.
 
-- **Next steps / TODO:**
-  - Compare performance and maintainability of function-based vs class-based views as project grows.
-  - Consider adding permissions and throttling to `product_alt_view` if needed.
-  - Explore decorators like `@permission_classes` for custom auth on function-based views.
+---
+
+## Entry — 2026-01-17
+
+- **Date:** 2026-01-17
+- **Topics:** Refactoring to generic class-based views, complete CRUD operations, URL routing consolidation
+- **Summary:** Refactored the products app to use DRF generic class-based views exclusively. Replaced the function-based `product_alt_view` with dedicated generic views for all CRUD operations: `ProductListCreateAPIView`, `ProductDetailAPIView`, `ProductUpdateAPIView`, and `ProductDestroyAPIView`. Updated URL routing to reflect the new endpoint structure with proper separation of concerns.
+
+- **Key details:**
+  - Replaced function-based `product_alt_view` with specialized generic views for better separation of concerns and DRY principles.
+  - `ProductListCreateAPIView` (extends `ListCreateAPIView`): Handles GET (list all) and POST (create new) on the list endpoint.
+  - `ProductDetailAPIView` (extends `RetrieveAPIView`): Handles GET (retrieve single) by pk.
+  - `ProductUpdateAPIView` (extends `UpdateAPIView`): Handles PUT (full update) with custom `perform_update` to ensure content field defaults to title if empty.
+  - `ProductDestroyAPIView` (extends `DestroyAPIView`): Handles DELETE requests.
+  - New URL patterns: `/api/products/`, `/api/products/<pk>/`, `/api/products/<pk>/update/`, `/api/products/<pk>/delete/`.
+
+- **Commands:**
+  - run server: `python manage.py runserver`
+  - client tests: `python py_client/list.py`, `python py_client/detail.py`, `python py_client/create.py`, `python py_client/update.py`, `python py_client/delete.py`
+
+- **Files modified:**
+  - `backend/products/views.py` — Added 4 generic views, commented out `product_alt_view`
+  - `backend/products/urls.py` — Updated URL patterns to route to the new generic views
+  - `py_client/update.py` (new) — Test script for PUT requests
+  - `py_client/delete.py` (new) — Test script for DELETE requests
 
