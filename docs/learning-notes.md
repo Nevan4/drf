@@ -283,7 +283,6 @@ python py_client/basic.py
 - **Key details:**
 - **Commands:**
 - **Files:**
-- **Next steps / TODO:**
 
 ## Entry — 2025-01-13 (Branch 1-11)
 

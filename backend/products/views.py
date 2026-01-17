@@ -40,28 +40,49 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 #     queryset = Product.objects.all()
 #     serializer_class = ProductSerializer
 
-@api_view(['GET', 'POST'])
-def product_alt_view(request, pk=None,  *args, **kwargs):
-    method = request.method
 
-    if method == "GET":
-        if pk is not None:
-            # detail view
-            obj = get_object_or_404(Product, pk=pk)
-            data = ProductSerializer(obj, many=False).data
-            return Response(data)
-        # list view
-        queryset = Product.objects.all()
-        data = ProductSerializer(queryset, many=True).data
-        return Response(data)
+# @api_view(['GET', 'POST'])
+# def product_alt_view(request, pk=None,  *args, **kwargs):
+#     method = request.method
+
+#     if method == "GET":
+#         if pk is not None:
+#             # detail view
+#             obj = get_object_or_404(Product, pk=pk)
+#             data = ProductSerializer(obj, many=False).data
+#             return Response(data)
+#         # list view
+#         queryset = Product.objects.all()
+#         data = ProductSerializer(queryset, many=True).data
+#         return Response(data)
     
-    if method == "POST":
-        # create an item
-        serializer = ProductSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = cast(dict, serializer.validated_data)
+#     if method == "POST":
+#         # create an item
+#         serializer = ProductSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         data = cast(dict, serializer.validated_data)
         
-        title = data.get('title')
-        content = data.get('content') or title
-        serializer.save(content=content)
-        return Response(serializer.data, status=201)
+#         title = data.get('title')
+#         content = data.get('content') or title
+#         serializer.save(content=content)
+#         return Response(serializer.data, status=201)
+
+
+class ProductUpdateAPIView(generics.UpdateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'pk'
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        if not instance.content:
+            instance.content = instance.title
+
+
+class ProductDestroyAPIView(generics.DestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def perform_destroy(self, instance):
+        # instance = serializer.save()
+        super().perform_destroy(instance)
