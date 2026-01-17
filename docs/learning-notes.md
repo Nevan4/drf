@@ -376,3 +376,31 @@ python py_client/basic.py
   - `py_client/update.py` (new) — Test script for PUT requests
   - `py_client/delete.py` (new) — Test script for DELETE requests
 
+---
+
+## Entry — 2026-01-17 (Mixins exploration)
+
+- **Date:** 2026-01-17
+- **Topics:** DRF mixins, combining mixins with GenericAPIView, understanding view lifecycle and validation
+- **Summary:** Explored DRF mixins by building `ProductMixinView` that combines `CreateModelMixin`, `ListModelMixin`, `RetrieveModelMixin`, and `GenericAPIView`. Learned how mixins handle the full HTTP lifecycle—including automatic `is_valid()` calls—allowing a single view to handle both list (`/products/`) and detail (`/products/<pk>/`) operations with GET and POST methods.
+
+- **Key details:**
+  - **Mixins:** Reusable building blocks that implement specific behaviors (`CreateModelMixin`, `ListModelMixin`, `RetrieveModelMixin`). Each mixin provides methods like `create()`, `list()`, `retrieve()` that handle the full request lifecycle.
+  - **GenericAPIView base:** Provides common view setup (queryset, serializer_class, lookup_field) that mixins rely on.
+  - **Automatic validation:** When `self.create()` is called, the mixin automatically calls `is_valid()` internally before invoking `perform_create()`. This means `validated_data` is guaranteed to be available in `perform_create()` without explicit validation.
+  - **Method dispatch:** The view's `get()` and `post()` methods manually dispatch to `self.retrieve()`, `self.list()`, or `self.create()` based on URL parameters (pk presence).
+  - **Single view, multiple operations:** One view class handles both `/products/` (list/create) and `/products/<pk>/` (retrieve) by checking if pk exists in kwargs.
+
+- **Commands:**
+  - Test with client: `python py_client/create.py`, `python py_client/list.py`, etc.
+
+- **Files modified:**
+  - `backend/products/views.py` — Added `ProductMixinView` using mixins; previous generic views still present
+  - `backend/products/urls.py` — Switched routes to use `ProductMixinView` instead of specific generic views
+  - `py_client/create.py` — Updated test data
+
+- **Key learning:**
+  - Mixins abstract away boilerplate: they handle `is_valid()`, error handling, response formatting automatically
+  - `perform_create()` is called by the mixin after validation passes—you don't need to validate manually
+  - Mixins demonstrate the hidden workflow: `get()` → mixin method → validation (automatic) → `perform_*()` → DB operation → Response
+
