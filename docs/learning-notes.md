@@ -404,3 +404,27 @@ python py_client/basic.py
   - `perform_create()` is called by the mixin after validation passes—you don't need to validate manually
   - Mixins demonstrate the hidden workflow: `get()` → mixin method → validation (automatic) → `perform_*()` → DB operation → Response
 
+---
+
+## Entry — 2026-02-20
+
+- **Date:** 2026-02-20
+- **Topics:** URL routing updates, authentication and permissions enhancements
+- **Summary:** Restored `ProductListCreateAPIView` and `ProductDetailAPIView` in URL routing. Enhanced authentication in `ProductListCreateAPIView` allows only authenticated users to create and list products, ensuring secure access to sensitive operations. A superuser was created to test session management and verify that only authenticated clients can perform actions restricted from unauthenticated users.
+
+- **Key details:**
+  - URL routing restored to use `ProductListCreateAPIView` and `ProductDetailAPIView` for list/create and detail operations, respectively.
+  - Authentication and permissions in `ProductListCreateAPIView` were enhanced to require authenticated users for creating and listing products.
+  - Superuser created for testing: a superuser account was set up to verify that session management and authentication restrictions work as expected.
+
+- **Commands:**
+  - create superuser: `python manage.py createsuperuser`
+  - run server: `python manage.py runserver`
+  - client tests: `python py_client/list.py`, `python py_client/detail.py`, `python py_client/create.py`
+
+- **Files modified:**
+  - `backend/products/views.py` — Restored `ProductListCreateAPIView` and `ProductDetailAPIView`
+  - `backend/products/urls.py` — Updated URL patterns to route to the restored views
+
+---
+
